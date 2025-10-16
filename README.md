@@ -25,6 +25,17 @@ Prosjektet består av flere moduler i `src/salgsmester`:
 - `reporting.py` – skriver og sender ukentlige rapporter
 - `main.py` – kommandolinjegrensesnitt
 
+## Kurtasjehåndtering
+
+Alle beregninger tar høyde for kurtasje:
+
+- Ved kjøp brukes totalkostnaden (pris + kurtasje) som ny inngangsverdi per aksje.
+- Ved salg legges kun netto salgsproveny etter kurtasje til kontantbeholdningen.
+- Risikomodellen trekker fra forventet kurtasje ved beregning av eksponering,
+  og legger til kurtasjedrag i downside-estimatet. Instrumenter med høy
+  kurtasjebelastning får dermed en høyere risikoscore og filtreres ut av
+  strategien dersom de overstiger toleransen.
+
 ## Komme i gang
 
 ### 1. Installer og aktiver prosjektet

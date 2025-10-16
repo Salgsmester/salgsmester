@@ -14,7 +14,7 @@ from typing import Any, Optional
 
 import requests
 
-from .config import NordnetCredentials, FeeStructure
+from .config import FeeStructure, NordnetCredentials
 from .data_models import InstrumentSnapshot, Portfolio, Position
 
 
@@ -188,9 +188,20 @@ class NordnetClient:
         response.raise_for_status()
         return response.json()
 
-    def estimate_trade_cost(self, price: float, quantity: float) -> float:
-        """Beregner forventet kurtasje og totalkostnad."""
+    def estimate_trade_fee(self, price: float, quantity: float) -> float:
+        """Beregner forventet kurtasje for en handel."""
 
         gross = price * quantity
-        fee = self.fees.fixed_fee + gross * self.fees.variable_fee_rate
-        return gross + fee
+        return self.fees.fixed_fee + gross * self.fees.variable_fee_rate
+
+    def estimate_total_buy_cost(self, price: float, quantity: float) -> float:
+        """Beregner totalkostnaden for et kjøp inkludert kurtasje."""
+
+        return price * quantity + self.estimate_trade_fee(price, quantity)
+
+    def estimate_net_sell_proceeds(self, price: float, quantity: float) -> float:
+        """Beregner netto salgsproveny etter kurtasje."""
+
+        gross = price * quantity
+        fee = self.estimate_trade_fee(price, quantity)
+        return max(gross - fee, 0.0)

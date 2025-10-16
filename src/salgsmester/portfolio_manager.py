@@ -29,7 +29,7 @@ class PortfolioManager:
         fees: FeeStructure,
     ) -> None:
         self.client = client
-        self.strategy = MomentumGrowthStrategy(targets)
+        self.strategy = MomentumGrowthStrategy(targets, fees)
         self.fees = fees
         self.trade_log: list[TradeLogEntry] = []
 
@@ -63,7 +63,8 @@ class PortfolioManager:
                     note="Måloppnåelse utløste salg",
                 )
             )
-            portfolio.cash += quantity * price
+            net_proceeds = self.client.estimate_net_sell_proceeds(price, quantity)
+            portfolio.cash += net_proceeds
 
     def _execute_purchases(
         self, candidates: Iterable[InstrumentSnapshot], portfolio: Portfolio
@@ -83,7 +84,7 @@ class PortfolioManager:
             if quantity <= 0:
                 continue
 
-            total_cost = self.client.estimate_trade_cost(price, quantity)
+            total_cost = self.client.estimate_total_buy_cost(price, quantity)
             if total_cost > portfolio.cash:
                 continue
 
@@ -93,7 +94,7 @@ class PortfolioManager:
                 Position(
                     instrument=candidate,
                     quantity=quantity,
-                    entry_price=price,
+                    entry_price=total_cost / quantity if quantity else price,
                     entry_time=datetime.utcnow(),
                 )
             )
