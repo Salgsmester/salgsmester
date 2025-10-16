@@ -1,0 +1,13 @@
+[project]
+name = "salgsmester"
+version = "0.1.0"
+description = "Automatisert Nordnet-rammeverk for analyse, handel og rapportering"
+authors = [{ name = "Salgsmester" }]
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.32.0",
+]
+
+[project.scripts]
+salgsmester = "salgsmester.main:main"
